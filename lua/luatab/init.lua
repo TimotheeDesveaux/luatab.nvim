@@ -36,7 +36,14 @@ M.modified = function(bufnr)
 end
 
 M.windowCount = function(index)
-    local nwins = vim.fn.tabpagewinnr(index, '$')
+    local nwins = 0
+    local success, wins = pcall(vim.api.nvim_tabpage_list_wins, index)
+    if success then
+        local filtered = vim.tbl_filter(function(win)
+            return vim.fn.win_gettype(win) ~= 'popup'
+        end, wins)
+        nwins = #filtered
+    end
     return nwins > 1 and '(' .. nwins .. ') ' or ''
 end
 
